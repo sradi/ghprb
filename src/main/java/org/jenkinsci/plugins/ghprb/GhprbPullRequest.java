@@ -260,11 +260,11 @@ public class GhprbPullRequest {
     private void checkComment(GHIssueComment comment) throws IOException {
         GHUser sender = comment.getUser();
         String body = comment.getBody();
-
+        
         // ignore comments from bot user, this fixes an issue where the bot would auto-whitelist
         // a user or trigger a build when the 'request for testing' phrase contains the
         // whitelist/trigger phrase and the bot is a member of a whitelisted organisation
-        if (helper.isBotUser(sender)) {
+        if (helper.isIgnoreBotUser() && helper.isBotUser(sender)) {
             logger.log(Level.INFO, "Comment from bot user {0} ignored.", sender);
             return;
         }

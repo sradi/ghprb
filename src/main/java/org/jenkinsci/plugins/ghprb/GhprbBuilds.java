@@ -119,7 +119,7 @@ public class GhprbBuilds {
 
         StringBuilder msg = new StringBuilder();
 
-        String publishedURL = GhprbTrigger.getDscp().getPublishedURL();
+        String publishedURL = trigger.getCredentials().getPublishedUrl();
         if (publishedURL != null && !publishedURL.isEmpty()) {
             String commentFilePath = trigger.getCommentFilePath();
             
@@ -205,7 +205,7 @@ public class GhprbBuilds {
         }
     }
 
-    private String generateCustomizedMessage(AbstractBuild build) {
+    private String generateCustomizedMessage(AbstractBuild<?,?> build) {
         JobConfiguration jobConfiguration =
             JobConfiguration.builder()
                 .printStackTrace(trigger.isDisplayBuildErrorsOnDownstreamBuilds())

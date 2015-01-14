@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import hudson.model.AbstractBuild;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
-import org.apache.log4j.lf5.LogLevel;
 import org.kohsuke.github.*;
 import org.kohsuke.github.GHEventPayload.IssueComment;
 import org.kohsuke.github.GHEventPayload.PullRequest;
@@ -127,7 +126,11 @@ public class GhprbRepository {
     public void createCommitStatus(AbstractBuild<?, ?> build, String sha1, GHCommitState state, String url, String message, int id, String context) {
         logger.log(Level.INFO, "Setting status of {0} to {1} with url {2} and message: {3}", new Object[]{sha1, state, url, message});
         try {
-            ghRepository.createCommitStatus(sha1, state, url, message, context);
+            if (context != null && !context.isEmpty()) {
+                ghRepository.createCommitStatus(sha1, state, url, message, context);
+            } else {
+                ghRepository.createCommitStatus(sha1, state, url, message);
+            }
         } catch (IOException ex) {
             if (GhprbTrigger.getDscp().getUseComments()) {
                 logger.log(Level.INFO, "Could not update commit status of the Pull Request on GitHub.", ex);

@@ -5,11 +5,13 @@ import hudson.model.AbstractProject;
 import hudson.model.UnprotectedRootAction;
 import hudson.security.ACL;
 import jenkins.model.Jenkins;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -28,6 +30,19 @@ import java.util.logging.Logger;
 public class GhprbRootAction implements UnprotectedRootAction {
     static final String URL = "ghprbhook";
     private static final Logger logger = Logger.getLogger(GhprbRootAction.class.getName());
+    public GhprbGithubCredentials credentials;
+    
+    public GhprbRootAction() {
+        credentials = null;
+    }
+    
+    public GhprbRootAction(GhprbGithubCredentials credentials) {
+        this.credentials = credentials;
+    }
+    
+    public void setCredentials(GhprbGithubCredentials credentials) {
+        this.credentials = credentials;
+    }
 
     public String getIconFileName() {
         return null;
@@ -73,12 +88,12 @@ public class GhprbRootAction implements UnprotectedRootAction {
             return;
         }
         
-        GhprbGitHub gh = GhprbTrigger.getDscp().getGitHub();
 
         logger.log(Level.INFO, "Got payload event: {0}", event);
         try {
+            GitHub gh = GitHub.connectAnonymously();
             if ("issue_comment".equals(event)) {
-                GHEventPayload.IssueComment issueComment = gh.get().parseEventPayload(new StringReader(payload), GHEventPayload.IssueComment.class);
+                GHEventPayload.IssueComment issueComment = gh.parseEventPayload(new StringReader(payload), GHEventPayload.IssueComment.class);
                 GHIssueState state = issueComment.getIssue().getState();
                 if (state == GHIssueState.CLOSED) {
                     logger.log(Level.INFO, "Skip comment on closed PR");
@@ -90,7 +105,7 @@ public class GhprbRootAction implements UnprotectedRootAction {
                     repo.onIssueCommentHook(issueComment);
                 }
             } else if ("pull_request".equals(event)) {
-                GHEventPayload.PullRequest pr = gh.get().parseEventPayload(new StringReader(payload), GHEventPayload.PullRequest.class);
+                GHEventPayload.PullRequest pr = gh.parseEventPayload(new StringReader(payload), GHEventPayload.PullRequest.class);
                 for (GhprbRepository repo : getRepos(pr.getPullRequest().getRepository())) {
                     logger.log(Level.INFO, "Checking PR #{1} for {0}", new Object[] { repo.getName(), pr.getNumber()});
                     repo.onPullRequestHook(pr);
