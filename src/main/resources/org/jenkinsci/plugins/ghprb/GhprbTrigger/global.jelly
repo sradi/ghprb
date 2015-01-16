@@ -3,6 +3,9 @@
     <f:entry title="Credentials">
       <f:repeatable var="credential" items="${descriptor.credentials}" add="Add" header="Github credentials">
         <table width="100%">
+          <f:entry title="${%Credentials Name}">
+            <f:textbox name="credential.name" value="${credential.name}" default="default"/>
+          </f:entry>
           <f:entry title="${%GitHub server api URL}">
             <f:textbox name="credential.serverApiUrl" value="${credential.serverApiUrl}" default="https://api.github.com"/>
           </f:entry>

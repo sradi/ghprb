@@ -10,6 +10,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class GhprbGithubCredentials implements ModelObject{
     
+    private final String name;
     private final URL serverApiUrl;
     private final String serverApiUrlString;
     private final String username;
@@ -18,7 +19,11 @@ public class GhprbGithubCredentials implements ModelObject{
     private final boolean useToken;
     private final boolean ignoreBotUser;
     private final String publishedUrl;
-    private final GhprbGitHub gh;
+    private GhprbGitHub gh;
+    
+    public String getName() {
+        return name;
+    }
     
     public URL getServerApiUrl() {
         return serverApiUrl;
@@ -46,6 +51,7 @@ public class GhprbGithubCredentials implements ModelObject{
     
     
     public GhprbGithubCredentials() {
+        name = null;
         serverApiUrlString = null;
         serverApiUrl = null;
         username = null;
@@ -58,6 +64,7 @@ public class GhprbGithubCredentials implements ModelObject{
     }
     
     public GhprbGithubCredentials(JSONObject creds) {
+        name = creds.getString("name");
         serverApiUrlString = creds.getString("serverApiUrl");
         try {
             this.serverApiUrl = new URL(serverApiUrlString);
@@ -74,9 +81,10 @@ public class GhprbGithubCredentials implements ModelObject{
     }
     
     @DataBoundConstructor
-    public GhprbGithubCredentials(String serverApiUrl, String username, 
+    public GhprbGithubCredentials(String name, String serverApiUrl, String username, 
             String password, String accessToken, String publishedUrl,
             boolean ignoreBotUser) {
+        this.name = name;
         this.serverApiUrlString = serverApiUrl;
         try {
             this.serverApiUrl = new URL(serverApiUrl);
@@ -93,7 +101,7 @@ public class GhprbGithubCredentials implements ModelObject{
     }
     
     public String getDisplayName() {
-        return serverApiUrl.toString();
+        return name + " " + serverApiUrlString;
     }
     
     public JSONObject toJSONObject() {
@@ -113,18 +121,19 @@ public class GhprbGithubCredentials implements ModelObject{
             return false;
         }
         GhprbGithubCredentials creds = (GhprbGithubCredentials) o;
-        boolean isSame = this.serverApiUrl.equals(creds.serverApiUrl);
+        boolean isSame = this.serverApiUrlString.equals(creds.serverApiUrlString);
+        isSame &= this.name.equals(creds.name);
         return isSame;
     }
 
     @Override
     public String toString() {
-        return serverApiUrl.toString();
+        return name + " " + serverApiUrlString;
     }
 
     @Override
     public int hashCode() {
-        return (serverApiUrl).hashCode();
+        return (toString()).hashCode();
     }
 
     public String getServerApiUrlString() {
@@ -132,6 +141,9 @@ public class GhprbGithubCredentials implements ModelObject{
     }
 
     public GhprbGitHub getGitHub() {
+        if (gh == null) {
+            gh = new GhprbGitHub(this);
+        }
         return gh;
     }
 

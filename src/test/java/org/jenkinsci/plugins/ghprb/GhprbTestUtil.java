@@ -82,7 +82,7 @@ public class GhprbTestUtil {
 	public static JSONObject provideConfiguration() {
 		JSONObject jsonObject = new JSONObject();
 		
-		GhprbGithubCredentials credentials = new GhprbGithubCredentials("https://api.github.com", "user", "1111", "accessToken", "defaultPublishedURL", false);
+		GhprbGithubCredentials credentials = new GhprbGithubCredentials("default", "https://api.github.com", "user", "1111", "accessToken", "defaultPublishedURL", false);
 
 		jsonObject.put("credential", credentials.toJSONObject());
 		jsonObject.put("adminlist", "user");
