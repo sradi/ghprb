@@ -95,7 +95,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         if (credentials == null || credentials.isEmpty()) {
             this.credentials = DESCRIPTOR.getDefaultCredentials();
         } else {
-        	this.credentials = DESCRIPTOR.getCredentials(credentials);
+            this.credentials = DESCRIPTOR.getCredentials(credentials);
         }
     }
 
@@ -156,10 +156,11 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         try {
             helper = createGhprb(project);
         } catch (IllegalStateException ex) {
-            logger.log(Level.INFO, "Can't start ghprb trigger", ex);
+            logger.log(Level.SEVERE, "Can't start ghprb trigger", ex);
             return;
         }
 
+        logger.log(Level.INFO, "Starting the ghprb trigger for the {0} job; newInstance is {1}", new String[] { this.project, String.valueOf(newInstance) });
         super.start(project, newInstance);
         helper.init();
     }
@@ -292,7 +293,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         try {
             this.job.save();
         } catch (IOException ex) {
-            logger.log(Level.INFO, "Failed to save new whitelist", ex);
+            logger.log(Level.SEVERE, "Failed to save new whitelist", ex);
         }
     }
 
@@ -395,7 +396,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 
     public GhprbBuilds getBuilds() {
         if (helper == null) {
-            logger.log(Level.INFO, "The ghprb trigger for {0} wasn''t properly started - helper is null", this.project);
+            logger.log(Level.SEVERE, "The ghprb trigger for {0} wasn''t properly started - helper is null", this.project);
             return null;
         }
         return helper.getBuilds();
@@ -403,7 +404,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 
     public GhprbRepository getRepository() {
         if (helper == null) {
-            logger.log(Level.INFO, "The ghprb trigger for {0} wasn''t properly started - helper is null", this.project);
+            logger.log(Level.SEVERE, "The ghprb trigger for {0} wasn''t properly started - helper is null", this.project);
             return null;
         }
         return helper.getRepository();
