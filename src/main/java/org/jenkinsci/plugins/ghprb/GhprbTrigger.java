@@ -186,9 +186,6 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
             return;
         }
 
-        if (helper == null) {
-        	logger.log(Level.INFO, "helper is null!");
-        }
         helper.run();
         getDescriptor().save();
     }
