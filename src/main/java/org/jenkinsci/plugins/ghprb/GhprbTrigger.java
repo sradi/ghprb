@@ -17,8 +17,6 @@ import hudson.util.ListBoxModel;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.kohsuke.github.GHAuthorization;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHMyself;
@@ -94,13 +92,10 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         this.msgSuccess = msgSuccess;
         this.msgFailure = msgFailure;
        
-        logger.log(Level.INFO, "@DataBoundConstructor: " + ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE));
         if (credentials == null || credentials.isEmpty()) {
             this.credentials = DESCRIPTOR.getDefaultCredentials();
-            logger.log(Level.INFO, "credentials is empty. default is " + ReflectionToStringBuilder.toString(credentials, ToStringStyle.MULTI_LINE_STYLE));
         } else {
         	this.credentials = DESCRIPTOR.getCredentials(credentials);
-            logger.log(Level.INFO, "credentials is " + ReflectionToStringBuilder.toString(credentials, ToStringStyle.MULTI_LINE_STYLE));
         }
     }
 
@@ -165,8 +160,6 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
             return;
         }
 
-        logger.log(Level.INFO, "Starting the ghprb trigger for the {0} job; newInstance is {1}", new String[] { this.project, String.valueOf(newInstance) });
-        logger.log(Level.INFO, "credential is " + ReflectionToStringBuilder.toString(credentials, ToStringStyle.MULTI_LINE_STYLE));
         super.start(project, newInstance);
         helper.init();
     }
@@ -194,9 +187,6 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 
         if (helper == null) {
         	logger.log(Level.INFO, "helper is null!");
-        } else {
-        	logger.log(Level.INFO, "helper is " + ReflectionToStringBuilder.toString(helper, ToStringStyle.MULTI_LINE_STYLE));
-        	logger.log(Level.INFO, "trigger is " + ReflectionToStringBuilder.toString(helper.getTrigger(), ToStringStyle.MULTI_LINE_STYLE));
         }
         helper.run();
         getDescriptor().save();
@@ -514,26 +504,20 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
             commitStatusContext = formData.getString("commitStatusContext");
             credentials = new HashSet<GhprbGithubCredentials>(1);
             
-            logger.log(Level.INFO, "formData is " + ReflectionToStringBuilder.toString(formData, ToStringStyle.MULTI_LINE_STYLE));
-
             if (formData.has("credential")) {
             	logger.log(Level.INFO, "formData has credential");
             	
             	final Object credential = formData.get("credential");
                 if (credential instanceof JSONArray) {
-                	logger.log(Level.INFO, "credential is JSONArray \n" + ReflectionToStringBuilder.reflectionToString(credential, ToStringStyle.MULTI_LINE_STYLE));
-                	
                     JSONArray credsArray = formData.getJSONArray("credential");
                     int length = credsArray.size();
                     for (int i = 0; i < length; ++i) {
                         credentials.add(new GhprbGithubCredentials(credsArray.getJSONObject(i)));
                     }
                 } else if (formData.get("credential") instanceof JSONObject) {
-                	logger.log(Level.INFO, "credential is JSONObject \n" + ReflectionToStringBuilder.reflectionToString(credential, ToStringStyle.MULTI_LINE_STYLE));
-                	
-                    credentials.add(new GhprbGithubCredentials(formData.getJSONObject("credential")));
+                	credentials.add(new GhprbGithubCredentials(formData.getJSONObject("credential")));
                 } else {
-                	logger.log(Level.INFO, "credential is not JSONArray and JSONObject \n" + ReflectionToStringBuilder.reflectionToString(credential, ToStringStyle.MULTI_LINE_STYLE));
+                	logger.log(Level.INFO, "credential is not JSONArray and JSONObject");
                 }
             } else if (formData.has("serverAPIUrl")) {
             	logger.log(Level.INFO, "formData has serverAPIUrl(" + formData.getDouble("serverAPIUrl"));
