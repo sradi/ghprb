@@ -222,12 +222,10 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 
         try {
             triggerAuthor = getString(cause.getTriggerSender().getName(), "");
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
         try {
             triggerAuthorEmail = getString(cause.getTriggerSender().getEmail(), "");
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         values.add(new StringParameterValue("ghprbTriggerAuthor", triggerAuthor));
         values.add(new StringParameterValue("ghprbTriggerAuthorEmail", triggerAuthorEmail));
