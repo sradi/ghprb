@@ -518,7 +518,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
                     logger.log(Level.SEVERE, "credential is not JSONArray and JSONObject");
                 }
             } else if (formData.has("serverAPIUrl")) {
-                credentials.add(new GhprbGithubCredentials("default", 
+                credentials.add(new GhprbGithubCredentials("default",
                         formData.getString("serverAPIUrl"), formData.getString("username"),
                         formData.getString("password"), formData.getString("accessToken"),
                         formData.getString("publishedURL"), false));
