@@ -7,7 +7,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import hudson.Extension;
 import hudson.model.*;
-import hudson.model.StringParameterValue;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.plugins.git.RevisionParameterAction;
 import hudson.plugins.git.util.BuildData;
@@ -92,6 +91,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         this.allowMembersOfWhitelistedOrgsAsAdmin = allowMembersOfWhitelistedOrgsAsAdmin;
         this.msgSuccess = msgSuccess;
         this.msgFailure = msgFailure;
+
         if (credentials == null || credentials.isEmpty()) {
             this.credentials = DESCRIPTOR.getDefaultCredentials();
         } else {
@@ -139,7 +139,9 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
     }
 
     public GhprbGithubCredentials getCredentials() {
-        this.credentials = DESCRIPTOR.getDefaultCredentials();
+        if (this.credentials == null) {
+            this.credentials = DESCRIPTOR.getDefaultCredentials();
+        }
         DESCRIPTOR.saveSetup();
         return credentials;
     }
@@ -183,6 +185,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         if (getUseGitHubHooks()) {
             return;
         }
+
         helper.run();
         getDescriptor().save();
     }
@@ -192,7 +195,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         final String commitSha = cause.isMerged() ? "origin/pr/" + cause.getPullID() + "/merge" : cause.getCommit();
         values.add(new StringParameterValue("sha1", commitSha));
         values.add(new StringParameterValue("ghprbActualCommit", cause.getCommit()));
-        
+
         setTriggerSender(cause, values);
         setCommitAuthor(cause, values);
 
@@ -212,7 +215,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         // one isn't there
         return this.job.scheduleBuild2(job.getQuietPeriod(), cause, new ParametersAction(values), findPreviousBuildForPullId(pullIdPv), new RevisionParameterAction(cause.getCommit()));
     }
-    
+
     private void setTriggerSender(GhprbCause cause, ArrayList<ParameterValue> values) {
         String triggerAuthor = "";
         String triggerAuthorEmail = "";
@@ -226,7 +229,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 
         values.add(new StringParameterValue("ghprbTriggerAuthor", triggerAuthor));
         values.add(new StringParameterValue("ghprbTriggerAuthorEmail", triggerAuthorEmail));
-        
+
     }
 
     private String escapeQuotes(String value) {
@@ -500,22 +503,23 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
             credentials = new HashSet<GhprbGithubCredentials>(1);
 
             if (formData.has("credential")) {
-                if (formData.get("credential") instanceof JSONArray) {
+                final Object credential = formData.get("credential");
+                if (credential instanceof JSONArray) {
                     JSONArray credsArray = formData.getJSONArray("credential");
                     int length = credsArray.size();
                     for (int i = 0; i < length; ++i) {
                         credentials.add(new GhprbGithubCredentials(credsArray.getJSONObject(i)));
                     }
-                } else if (formData.get("credential") instanceof JSONObject) {
+                } else if (credential instanceof JSONObject) {
                     credentials.add(new GhprbGithubCredentials(formData.getJSONObject("credential")));
+                } else {
+                    logger.log(Level.SEVERE, "credential is not JSONArray and JSONObject");
                 }
             } else if (formData.has("serverAPIUrl")) {
-                credentials.add(new GhprbGithubCredentials( "default",
-                        formData.getString("serverAPIUrl"), formData.getString("username"), 
+                credentials.add(new GhprbGithubCredentials("default",
+                        formData.getString("serverAPIUrl"), formData.getString("username"),
                         formData.getString("password"), formData.getString("accessToken"),
-                        formData.getString("publishedURL"), false)
-                );
-
+                        formData.getString("publishedURL"), false));
             }
 
             save();
